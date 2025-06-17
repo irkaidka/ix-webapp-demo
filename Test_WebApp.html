@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Расчет тарифа IX</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; margin: 0; }
+    label, select { display: block; margin-top: 15px; }
+    select, button { padding: 5px; width: 300px; }
+    #submitBtn { margin-top: 20px; }
+    #bandwidthValue { margin-top: 10px; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>Демо: Расчет тарифа подключения в IX</h1>
+
+  <label for="country">Страна:</label>
+  <select id="country">
+    <option value="">Выберите страну</option>
+    <option value="russia">Россия</option>
+    <option value="sweden">Швеция</option>
+    <option value="netherlands">Нидерланды</option>
+  </select>
+
+  <label for="city">Город:</label>
+  <select id="city" disabled>
+    <option value="">Сначала выберите страну</option>
+  </select>
+
+  <label for="dc">Дата-центр:</label>
+  <select id="dc" disabled>
+    <option value="">Сначала выберите город</option>
+  </select>
+
+  <label for="interface">Интерфейс подключения:</label>
+  <select id="interface" disabled>
+    <option value="">Сначала выберите дата-центр</option>
+  </select>
+
+  <div id="bandwidthBlock" style="display:none;">
+    <label for="bandwidth">Размер полосы (Гбит/с):</label>
+    <input type="range" id="bandwidth" min="1" max="1" value="1">
+    <div id="bandwidthValue">Выбрано: 1 Гбит/с. Стоимость: 20000 руб.</div>
+  </div>
+
+  <button id="submitBtn" disabled>Отправить запрос на подключение</button>
+
+  <script>
+    const countrySelect = document.getElementById("country");
+    const citySelect = document.getElementById("city");
+    const dcSelect = document.getElementById("dc");
+    const interfaceSelect = document.getElementById("interface");
+    const bandwidth = document.getElementById("bandwidth");
+    const bandwidthBlock = document.getElementById("bandwidthBlock");
+    const bandwidthValue = document.getElementById("bandwidthValue");
+    const submitBtn = document.getElementById("submitBtn");
+
+    const countryToCities = {
+      russia: ["Москва", "Санкт-Петербург"],
+      sweden: ["Стокгольм"],
+      netherlands: ["Амстердам"]
+    };
+
+    const cityToDCs = {
+      "Москва": ["M9 (ул. Бутлерова, д. 7)", "Linxdatacenter (ул. 8 Марта, д.14/1)"],
+      "Санкт-Петербург": ["Selectel (ул. Цветочная, д. 19)", "К12 (ул. Кантемировская, д.12, стр.1)"],
+      "Стокгольм": ["Equinix SK1 (Mariehällsvägen, 36)"],
+      "Амстердам": ["Nikhef (Science Park, 105)"]
+    };
+
+    const interfaceOptions = ["1G", "10G", "100G", "400G"];
+
+    function updateBandwidthMax(interfaceValue) {
+      const max = parseInt(interfaceValue);
+      bandwidth.max = max;
+      bandwidth.value = 1;
+      updatePrice();
+    }
+
+    function updatePrice() {
+      const gb = parseInt(bandwidth.value);
+      const cost = gb * (20000 - (gb - 1) * 1000);
+      bandwidthValue.textContent = `Выбрано: ${gb} Гбит/с. Стоимость: ${cost.toLocaleString('ru-RU')} руб.`;
+    }
+
+    countrySelect.addEventListener("change", () => {
+      const country = countrySelect.value;
+      citySelect.innerHTML = "<option value=''>Выберите город</option>";
+      dcSelect.innerHTML = "<option value=''>Сначала выберите город</option>";
+      interfaceSelect.innerHTML = "<option value=''>Сначала выберите дата-центр</option>";
+      citySelect.disabled = dcSelect.disabled = interfaceSelect.disabled = true;
+      submitBtn.disabled = true;
+      bandwidthBlock.style.display = "none";
+
+      if (country && countryToCities[country]) {
+        countryToCities[country].forEach(city => {
+          const option = document.createElement("option");
+          option.value = city;
+          option.textContent = city;
+          citySelect.appendChild(option);
+        });
+        citySelect.disabled = false;
+      }
+    });
+
+    citySelect.addEventListener("change", () => {
+      const city = citySelect.value;
+      dcSelect.innerHTML = "<option value=''>Выберите дата-центр</option>";
+      interfaceSelect.innerHTML = "<option value=''>Сначала выберите дата-центр</option>";
+      dcSelect.disabled = interfaceSelect.disabled = true;
+      submitBtn.disabled = true;
+      bandwidthBlock.style.display = "none";
+
+      if (city && cityToDCs[city]) {
+        cityToDCs[city].forEach(dc => {
+          const option = document.createElement("option");
+          option.value = dc;
+          option.textContent = dc;
+          dcSelect.appendChild(option);
+        });
+        dcSelect.disabled = false;
+      }
+    });
+
+    dcSelect.addEventListener("change", () => {
+      interfaceSelect.innerHTML = "<option value=''>Выберите интерфейс</option>";
+      interfaceSelect.disabled = false;
+      submitBtn.disabled = true;
+      bandwidthBlock.style.display = "none";
+
+      interfaceOptions.forEach(speed => {
+        const option = document.createElement("option");
+        option.value = speed.replace("G", "");
+        option.textContent = speed;
+        interfaceSelect.appendChild(option);
+      });
+    });
+
+    interfaceSelect.addEventListener("change", () => {
+      const selected = interfaceSelect.value;
+      if (selected) {
+        updateBandwidthMax(selected);
+        bandwidthBlock.style.display = "block";
+        submitBtn.disabled = false;
+      } else {
+        submitBtn.disabled = true;
+        bandwidthBlock.style.display = "none";
+      }
+    });
+
+    bandwidth.addEventListener("input", updatePrice);
+  </script>
+</body>
+</html>
