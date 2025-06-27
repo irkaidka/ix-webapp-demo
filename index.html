@@ -6,39 +6,25 @@
   <title>IX Подключение</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f1f3f9;
-  margin: 0;
-  padding: 0;
-  min-height: 100dvh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  box-sizing: border-box;
-}
-
-.container {
-  background: white;
-  border-radius: 20px;
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
-  width: 100%;
-  max-width: 520px;
-  height: 100dvh; 
-  display: flex;
-  flex-direction: column;
-  justify-content: center; 
-  padding: 32px 24px;
-  box-sizing: border-box;
-}
-
-.content {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center; /* по вертикали */
-}
-
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f1f3f9;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+    .container {
+      background: white;
+      margin-top: 40px;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: 95%;
+      max-width: 520px;
+    }
     h1 {
       color: #0d1c4b;
       font-size: 22px;
@@ -63,19 +49,18 @@ body {
       width: 100%;
       margin-top: 10px;
     }
-button {
-  margin-top: auto;
-  background-color: #1a49f5;
-  color: white;
-  border: none;
-  border-radius: 12px;
-  padding: 14px;
-  width: 100%;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
+    button {
+      background-color: #1a49f5;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 12px;
+      width: 100%;
+      font-size: 16px;
+      font-weight: 600;
+      margin-top: 25px;
+      cursor: pointer;
+    }
     button:hover {
       background-color: #0d3bd3;
     }
@@ -105,7 +90,6 @@ button {
 </head>
 <body>
 <div class="container">
- <div class="content">
   <div id="page1" class="page visible">
     <h1>Расчет стоимости подключения к IX</h1>
     <label for="country">Страна:</label>
@@ -159,7 +143,6 @@ button {
 	<button id="backToCalculatorBtn" type="button">← Назад к калькулятору</button>
     <div id="successMessage" class="success" style="display: none;">Запрос успешно отправлен. Наш специалист свяжется с вами в ближайшее время.</div>
   </div>
- </div>
 </div>
 
 <script>
