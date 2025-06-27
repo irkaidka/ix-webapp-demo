@@ -7,24 +7,27 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f1f3f9;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      min-height: 100vh;
-    }
-    .container {
-      background: white;
-      margin-top: 40px;
-      padding: 30px;
-      border-radius: 16px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      width: 95%;
-      max-width: 520px;
-    }
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f1f3f9;
+  margin: 0;
+  padding: 16px; /* добавим горизонтальные отступы на мобильных */
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+.container {
+  background: white;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  width: 100%;
+  max-width: 520px;
+  box-sizing: border-box;
+}
+
     h1 {
       color: #0d1c4b;
       font-size: 22px;
@@ -139,7 +142,8 @@
     <input type="tel" id="phone" placeholder="Номер телефона">
     <div id="phoneError" class="error">Введите корректный номер из 10 цифр</div>
     <input type="email" id="email" placeholder="Email">
-    <button id="finalSubmitBtn">Отправить</button>
+	<button id="finalSubmitBtn">Отправить</button>
+	<button id="backToCalculatorBtn" type="button">← Назад к калькулятору</button>
     <div id="successMessage" class="success" style="display: none;">Запрос успешно отправлен. Наш специалист свяжется с вами в ближайшее время.</div>
   </div>
 </div>
@@ -312,6 +316,10 @@
     page2.classList.add("visible");
   });
   document.getElementById("finalSubmitBtn").addEventListener("click", submitForm);
+  document.getElementById("backToCalculatorBtn").addEventListener("click", () => {
+  page2.classList.remove("visible");
+  page1.classList.add("visible");
+});
   Telegram.WebApp.ready(); // Telegram API полностью инициализирован
 </script>
 </body>
