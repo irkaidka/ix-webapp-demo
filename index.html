@@ -6,16 +6,90 @@
   <title>IX Подключение</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; margin: 0; }
-    label, select, input { display: block; margin-top: 15px; width: 300px; padding: 5px; }
-    button { padding: 10px; margin-top: 20px; width: 310px; }
-    #bandwidthValue { margin-top: 10px; font-weight: bold; }
-    .page { display: none; }
-    .visible { display: block; }
-    .error { color: red; font-size: 14px; margin-top: 5px; display: none; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f1f3f9;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+    .container {
+      background: white;
+      margin-top: 40px;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: 95%;
+      max-width: 520px;
+    }
+    h1 {
+      color: #0d1c4b;
+      font-size: 22px;
+    }
+    label {
+      margin-top: 18px;
+      display: block;
+      font-weight: 600;
+      font-size: 14px;
+      color: #333;
+    }
+    select, input[type="text"], input[type="tel"], input[type="email"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box;
+    }
+    input[type="range"] {
+      width: 100%;
+      margin-top: 10px;
+    }
+    button {
+      background-color: #1a49f5;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 12px;
+      width: 100%;
+      font-size: 16px;
+      font-weight: 600;
+      margin-top: 25px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0d3bd3;
+    }
+    #bandwidthValue {
+      margin-top: 10px;
+      font-weight: bold;
+      color: #0d1c4b;
+    }
+    .page {
+      display: none;
+    }
+    .visible {
+      display: block;
+    }
+    .error {
+      color: red;
+      font-size: 14px;
+      margin-top: 5px;
+      display: none;
+    }
+    .success {
+      color: green;
+      font-weight: bold;
+      margin-top: 20px;
+    }
   </style>
 </head>
 <body>
+<div class="container">
   <div id="page1" class="page visible">
     <h1>Расчет стоимости подключения к IX</h1>
     <label for="country">Страна:</label>
@@ -24,6 +98,13 @@
       <option value="russia">Россия</option>
       <option value="sweden">Швеция</option>
       <option value="netherlands">Нидерланды</option>
+      <option value="germany">Германия</option>
+      <option value="finland">Финляндия</option>
+      <option value="bulgaria">Болгария</option>
+      <option value="poland">Польша</option>
+      <option value="austria">Австрия</option>
+      <option value="france">Франция</option>
+      <option value="hungary">Венгрия</option>
     </select>
 
     <label for="city">Город:</label>
@@ -52,45 +133,31 @@
   </div>
 
   <div id="page2" class="page">
-    <h1>Запрос на подключение услуги: IX</h1>
-    <p>Оставьте запрос на подготовку индивидуального предложения и мы найдем лучшее решение вашей задачи.</p>
+    <h1>Оставьте контактные данные</h1>
+    <p>Мы свяжемся с вами для уточнения деталей подключения</p>
     <input type="text" id="name" placeholder="Имя">
     <input type="tel" id="phone" placeholder="Номер телефона">
     <div id="phoneError" class="error">Введите корректный номер из 10 цифр</div>
     <input type="email" id="email" placeholder="Email">
-    <button onclick="submitForm()">Отправить</button>
-    <div id="successMessage" style="color: green; font-weight: bold; display: none;">Запрос успешно отправлен. Наш специалист свяжется с вами в ближайшее время.</div>
+    <button id="finalSubmitBtn">Отправить</button>
+    <div id="successMessage" class="success" style="display: none;">Запрос успешно отправлен. Наш специалист свяжется с вами в ближайшее время.</div>
   </div>
+</div>
 
-  <script>
-    const countrySelect = document.getElementById("country");
-    const citySelect = document.getElementById("city");
-    const dcSelect = document.getElementById("dc");
-    const interfaceSelect = document.getElementById("interface");
-    const bandwidth = document.getElementById("bandwidth");
-    const bandwidthList = document.getElementById("bandwidthList");
-    const bandwidthValue = document.getElementById("bandwidthValue");
-    const submitBtn = document.getElementById("submitBtn");
-
-    const page1 = document.getElementById("page1");
-    const page2 = document.getElementById("page2");
-
-    const countryToCities = {
-      russia: ["Москва", "Санкт-Петербург"],
-      sweden: ["Стокгольм"],
-      netherlands: ["Амстердам"]
-    };
-
-    const cityToDCs = {
-      "Москва": ["M9 (ул. Бутлерова, д. 7)", "Linxdatacenter (ул. 8 Марта, д.14/1)"],
-      "Санкт-Петербург": ["Selectel (ул. Цветочная, д. 19)", "К12 (ул. Кантемировская, д.12, стр.1)"],
-      "Стокгольм": ["Equinix SK1 (Mariehällsvägen, 36)"],
-      "Амстердам": ["Nikhef (Science Park, 105)"]
-    };
-
-    const interfaceOptions = ["1G", "10G", "100G", "400G"];
-
-    const pricingData = {
+<script>
+  const countrySelect = document.getElementById("country");
+  const citySelect = document.getElementById("city");
+  const dcSelect = document.getElementById("dc");
+  const interfaceSelect = document.getElementById("interface");
+  const bandwidth = document.getElementById("bandwidth");
+  const bandwidthList = document.getElementById("bandwidthList");
+  const bandwidthValue = document.getElementById("bandwidthValue");
+  const submitBtn = document.getElementById("submitBtn");
+  
+  const page1 = document.getElementById("page1");
+  const page2 = document.getElementById("page2");
+  
+  const pricingData = {
       1: 20000, 2: 38000, 3: 54000, 4: 68000, 5: 80000, 6: 88800, 7: 93799, 8: 96000, 9: 99000,
       10: 100000, 11: 109340, 12: 118559, 13: 127660, 14: 136640, 15: 145500, 16: 154240,
       17: 162860, 18: 171360, 19: 179739, 20: 187999, 30: 263999, 40: 328000, 50: 380000,
@@ -98,149 +165,154 @@
       130: 640639, 140: 686560, 150: 732000, 160: 776960, 170: 821440, 180: 865440,
       190: 908960, 200: 952000, 300: 1361999, 400: 1727999, 500: 2049999,
       600: 2328000, 700: 2561999, 800: 2752000, 900: 2897999, 1000: 3000000
+    };  
+  const interfaceOptions = ["1G", "10G", "100G", "400G"];
+  
+  const countryToCities = {
+      russia: ["Москва", "Санкт-Петербург"],
+      sweden: ["Стокгольм"],
+      netherlands: ["Амстердам"],
+	  germany: ["Франкфурт"],
+	  finland: ["Хельсинки"],
+	  bulgaria: ["София"],
+	  poland: ["Варшава", "Катовице"],
+	  austria: ["Вена"],
+	  france: ["Марсель"],
+	  hungary: ["Будапешт"],
+    };
+	
+   const cityToDCs = {
+      "Москва": ["M9 (ул. Бутлерова, д. 7)", "Linxdatacenter (ул. 8 Марта, д.14/1)", "Dataline Ost (ул. Боровая, д. 7)", "Storedata (ул. Нижегородская, д.32, литера А)", "IXcellerate (Алтуфьевское шоссе, д.33, литера Г)", "Datapro (ул. Авиамоторная, д.69)"],
+      "Санкт-Петербург": ["Selectel (ул. Цветочная, д. 19)", "К12 (ул. Кантемировская, д.12, стр.1)", "BOR57(ул. Боровая, д. 57)", "Linxdatacenter (ул. Репищева, д. 20, литера А)", "SPB-IX (ул. Большая Морская, д.18)", "Imaqliq (ул. Седова, д.11, литера Б)"],
+      "Стокгольм": ["Equinix SK1 (Mariehällsvägen, 36)"],
+      "Амстердам": ["Nikhef (Science Park, 105)","Equinix AM5  (Schepenbergweg, 42)", "Equinix AM4 (Science Park, 610)", "Equinix AM6 (Duivendrechtsekade 80A)"],
+	  "Франкфурт": ["Equinix FR5 (Kleyerstraße, 90)", "Digital Realty FRA15 (Hanauer Landstraße, 264)"],
+	  "Хельсинки": ["Digita (Radiokatu, 5)"],
+	  "София": ["Telepoint Sofia Center (Ovche Pole st, 122)"],
+	  "Варшава": ["Equinix WA1 (al. Jerozolimskie 65, 00-697)"],
+	  "Катовице": ["4 Data Center (ul. Adamskiego 7)"],
+	  "Вена": ["DRT VIE2 (Louis-Häfliger-Gasse 10)"],
+	  "Марсель": ["Digital Realty MRS3 (Enceinte Portuaire, Porte 4)"],
+	  "Будапешт": ["Dataplex (Asztalos Sandor utca 13.)"]
     };
 
-    let allowedBandwidths = [];
+  let allowedBandwidths = [];
 
-    function updateBandwidthList(maxGbps) {
-      allowedBandwidths = Object.keys(pricingData).map(n => parseInt(n)).filter(n => n <= maxGbps);
-      bandwidth.min = 0;
-      bandwidth.max = allowedBandwidths.length - 1;
-      bandwidth.value = 0;
-      bandwidthList.innerHTML = "";
-      allowedBandwidths.forEach((value, i) => {
-        const option = document.createElement("option");
-        option.value = i;
-        option.label = value;
-        bandwidthList.appendChild(option);
-      });
-      updatePrice();
+  function updateBandwidthList(maxGbps) {
+    allowedBandwidths = Object.keys(pricingData).map(n => parseInt(n)).filter(n => n <= maxGbps);
+    bandwidth.min = 0;
+    bandwidth.max = allowedBandwidths.length - 1;
+    bandwidth.value = 0;
+    bandwidthList.innerHTML = "";
+    allowedBandwidths.forEach((value, i) => {
+      const option = document.createElement("option");
+      option.value = i;
+      option.label = value;
+      bandwidthList.appendChild(option);
+    });
+    updatePrice();
+  }
+
+  function updatePrice() {
+    const index = parseInt(bandwidth.value);
+    const gb = allowedBandwidths[index];
+    const cost = pricingData[gb];
+    bandwidthValue.textContent = `Выбрано: ${gb} Гбит/с. Стоимость: ${cost.toLocaleString('ru-RU')} руб.`;
+  }
+
+  function submitForm() {
+    const name = document.getElementById("name").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const phoneError = document.getElementById("phoneError");
+    if (!phone && !email) {
+      alert("Укажите телефон или email");
+      return;
     }
-
-    function updatePrice() {
-      const index = parseInt(bandwidth.value);
-      const gb = allowedBandwidths[index];
-      const cost = pricingData[gb];
-      bandwidthValue.textContent = `Выбрано: ${gb} Гбит/с. Стоимость: ${cost.toLocaleString('ru-RU')} руб.`;
-    }
-
-	function submitForm() {
-	const name = document.getElementById("name").value.trim();
-	const phone = document.getElementById("phone").value.trim();
-	const email = document.getElementById("email").value.trim();
-	const phoneError = document.getElementById("phoneError");
-
-	if (!phone && !email) {
-		alert("Пожалуйста, укажите номер телефона или email");
-		return;
-	}
-
-	if (phone) {
-		const cleaned = phone.replace(/\D/g, '');
-		if (cleaned.length !== 10) {
-		phoneError.style.display = "block";
-		return;
-		} else {
-		phoneError.style.display = "none";
-		}
-	}
-
-	const tg = window.Telegram.WebApp;
-	const index = parseInt(bandwidth.value);
-	const gb = allowedBandwidths[index];
-	const cost = pricingData[gb];
-
-	const summary = `
-Запрос из приложения:
-
-Имя: ${name}
-Телефон: ${phone || "не указан"}
-Email: ${email || "не указан"}
-
-Выбор пользователя:
-Страна: ${countrySelect.value}
-Город: ${citySelect.value}
-Дата-центр: ${dcSelect.value}
-Интерфейс: ${interfaceSelect.value}G
-Полоса: ${gb} Гбит/с
-Стоимость: ${cost.toLocaleString('ru-RU')} руб.
-`;
-
-	// Показ уведомления
-	document.getElementById("successMessage").style.display = "block";
-
-	// Отправка данных в Telegram и закрытие через 3 секунды
-	tg.sendData(summary);
-	setTimeout(() => tg.close(), 3000);
-	}
-
-
-    countrySelect.addEventListener("change", () => {
-      const country = countrySelect.value;
-      citySelect.innerHTML = "<option value=''>Выберите город</option>";
-      dcSelect.innerHTML = "<option value=''>Сначала выберите город</option>";
-      interfaceSelect.innerHTML = "<option value=''>Сначала выберите дата-центр</option>";
-      citySelect.disabled = dcSelect.disabled = interfaceSelect.disabled = true;
-      submitBtn.disabled = true;
-
-      if (country && countryToCities[country]) {
-        countryToCities[country].forEach(city => {
-          const option = document.createElement("option");
-          option.value = city;
-          option.textContent = city;
-          citySelect.appendChild(option);
-        });
-        citySelect.disabled = false;
-      }
-    });
-
-    citySelect.addEventListener("change", () => {
-      const city = citySelect.value;
-      dcSelect.innerHTML = "<option value=''>Выберите дата-центр</option>";
-      interfaceSelect.innerHTML = "<option value=''>Сначала выберите дата-центр</option>";
-      dcSelect.disabled = interfaceSelect.disabled = true;
-      submitBtn.disabled = true;
-
-      if (city && cityToDCs[city]) {
-        cityToDCs[city].forEach(dc => {
-          const option = document.createElement("option");
-          option.value = dc;
-          option.textContent = dc;
-          dcSelect.appendChild(option);
-        });
-        dcSelect.disabled = false;
-      }
-    });
-
-    dcSelect.addEventListener("change", () => {
-      interfaceSelect.innerHTML = "<option value=''>Выберите интерфейс</option>";
-      interfaceSelect.disabled = false;
-      submitBtn.disabled = true;
-
-      interfaceOptions.forEach(speed => {
-        const option = document.createElement("option");
-        option.value = speed.replace("G", "");
-        option.textContent = speed;
-        interfaceSelect.appendChild(option);
-      });
-    });
-
-    interfaceSelect.addEventListener("change", () => {
-      const selected = parseInt(interfaceSelect.value);
-      if (selected) {
-        updateBandwidthList(selected);
-        submitBtn.disabled = false;
+    if (phone) {
+      const cleaned = phone.replace(/\D/g, '');
+      if (cleaned.length !== 10) {
+        phoneError.style.display = "block";
+        return;
       } else {
-        submitBtn.disabled = true;
+        phoneError.style.display = "none";
       }
-    });
+    }
+    const tg = window.Telegram.WebApp;
+    const index = parseInt(bandwidth.value);
+    const gb = allowedBandwidths[index];
+    const cost = pricingData[gb];
+    const summary = `\nЗапрос из приложения:\n\nИмя: ${name}\nТелефон: ${phone || "не указан"}\nEmail: ${email || "не указан"}\n\nВыбор пользователя:\nСтрана: ${countrySelect.value}\nГород: ${citySelect.value}\nДата-центр: ${dcSelect.value}\nИнтерфейс: ${interfaceSelect.value}G\nПолоса: ${gb} Гбит/с\nСтоимость: ${cost.toLocaleString('ru-RU')} руб.`;
+    document.getElementById("successMessage").style.display = "block";
+    tg.sendData(summary);
+    setTimeout(() => tg.close(), 5000);
+  }
 
-    bandwidth.addEventListener("input", updatePrice);
+  countrySelect.addEventListener("change", () => {
+    const country = countrySelect.value;
+    citySelect.innerHTML = "<option value=''>Выберите город</option>";
+    dcSelect.innerHTML = "<option value=''>Сначала выберите город</option>";
+    interfaceSelect.innerHTML = "<option value=''>Сначала выберите дата-центр</option>";
+    citySelect.disabled = dcSelect.disabled = interfaceSelect.disabled = true;
+    submitBtn.disabled = true;
+    if (country && countryToCities[country]) {
+      countryToCities[country].forEach(city => {
+        const option = document.createElement("option");
+        option.value = city;
+        option.textContent = city;
+        citySelect.appendChild(option);
+      });
+      citySelect.disabled = false;
+	  citySelect.removeAttribute("disabled");
+    }
+  });
 
-    submitBtn.addEventListener("click", () => {
-      page1.classList.remove("visible");
-      page2.classList.add("visible");
+  citySelect.addEventListener("change", () => {
+    const city = citySelect.value;
+    dcSelect.innerHTML = "<option value=''>Выберите дата-центр</option>";
+    interfaceSelect.innerHTML = "<option value=''>Сначала выберите дата-центр</option>";
+    dcSelect.disabled = interfaceSelect.disabled = true;
+    submitBtn.disabled = true;
+    if (city && cityToDCs[city]) {
+      cityToDCs[city].forEach(dc => {
+        const option = document.createElement("option");
+        option.value = dc;
+        option.textContent = dc;
+        dcSelect.appendChild(option);
+      });
+      dcSelect.disabled = false;
+    }
+  });
+
+  dcSelect.addEventListener("change", () => {
+    interfaceSelect.innerHTML = "<option value=''>Выберите интерфейс</option>";
+    interfaceSelect.disabled = false;
+    submitBtn.disabled = true;
+    interfaceOptions.forEach(speed => {
+      const option = document.createElement("option");
+      option.value = speed.replace("G", "");
+      option.textContent = speed;
+      interfaceSelect.appendChild(option);
     });
-  </script>
+  });
+
+  interfaceSelect.addEventListener("change", () => {
+    const selected = parseInt(interfaceSelect.value);
+    if (selected) {
+      updateBandwidthList(selected);
+      submitBtn.disabled = false;
+    } else {
+      submitBtn.disabled = true;
+    }
+  });
+
+  bandwidth.addEventListener("input", updatePrice);
+  submitBtn.addEventListener("click", () => {
+    page1.classList.remove("visible");
+    page2.classList.add("visible");
+  });
+  document.getElementById("finalSubmitBtn").addEventListener("click", submitForm);
+  Telegram.WebApp.ready(); // Telegram API полностью инициализирован
+</script>
 </body>
 </html>
