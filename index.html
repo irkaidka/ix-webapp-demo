@@ -98,6 +98,12 @@
       margin-top: 5px;
       display: none;
     }
+	.helper-text {
+      color: gray;
+      font-size: 11px;
+      margin-top: 5px;
+	  margin-left: 10px;
+    }
     .success {
       color: green;
       font-weight: bold;
@@ -116,6 +122,7 @@
     <p>Для получения расчета стоимости, укажите ваш номер телефона или email. Это нужно, чтобы сохранить результат и прислать вам подробности.</p>
     <input type="text" id="name" placeholder="Имя">
     <input type="tel" id="phone" placeholder="Номер телефона">
+	<div id="phoneHelper" class="helper-text">*Номер без кода страны (10 цифр), например: 9123456789</div>
     <div id="phoneError" class="error">Введите корректный номер из 10 цифр</div>
     <input type="email" id="email" placeholder="Email">
     <button id="finalSubmitBtn">Перейти к расчету стоимости</button>
@@ -319,11 +326,20 @@ function submitForm() {
     const email = document.getElementById("email").value.trim();
     const phoneError = document.getElementById("phoneError");
     
-    if (!phone && !email) {
-      alert("Укажите телефон или email");
+    // Проверка имени: только буквы
+    const namePattern = /^[A-Za-zА-Яа-яЁё]+$/;
+    if (!name || !namePattern.test(name)) {
+        alert("Пожалуйста, введите корректное Имя (только буквенные значения)");
+        return;
+    }
+
+    // Проверка, что заполнены имя и хотя бы одно из полей: телефон или email
+    if (!name || (!phone && !email)) {
+      alert("Пожалуйста, заполните Имя и телефон или email");
       return;
     }
     
+    // Проверка телефона
     if (phone) {
       const cleaned = phone.replace(/\D/g, '');
       if (cleaned.length !== 10) {
@@ -332,6 +348,14 @@ function submitForm() {
       }
     }
     
+    // Проверка email (если он заполнен)
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (email && !emailPattern.test(email)) {
+      alert("Пожалуйста, введите корректный Email.");
+      return;
+    }
+
+    // Переход на страницу 1 после успешной проверки
     page2.classList.remove("visible");
     page1.classList.add("visible");
   });
