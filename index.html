@@ -358,6 +358,29 @@ function submitForm() {
     // Переход на страницу 1 после успешной проверки
     page2.classList.remove("visible");
     page1.classList.add("visible");
+	
+	  // Отправка уведомления администратору
+    const tg = window.Telegram.WebApp;
+    const city = citySelect.value;
+    const dc = dcSelect.value;
+    const interfaceType = interfaceSelect.value;
+    const bandwidthValue = allowedBandwidths[parseInt(bandwidth.value)];
+
+    const userSummary = `
+     📨 <b>Запрос от пользователя</b>:
+     \nИмя: ${name}
+     \nТелефон: ${phone || "не указан"}
+     \nEmail: ${email || "не указан"}
+    `;
+
+    // Передаем данные через WebApp в Telegram
+    tg.sendData(userSummary);
+
+    // Сообщение для администраторов
+    ADMINS.forEach(adminId => {
+      bot.sendMessage(adminId, userSummary, { parse_mode: "HTML" });
+    });
+	
   });
   
   document.getElementById("backToFormBtn").addEventListener("click", () => {
