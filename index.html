@@ -329,17 +329,17 @@ document.getElementById("finalSubmitBtn").addEventListener("click", () => {
   // Проверка имени
   const namePattern = /^[A-Za-zА-Яа-яЁё\s]+$/;
   if (!name || !namePattern.test(name)) {
-    alert("Пожалуйста, введите корректное Имя (только буквенные значения)");
+    alert("Пожалуйста, введите корректное имя (только буквы)");
     return;
   }
 
-  // Проверка обязательных полей
+  // Проверка: телефон или email обязательны
   if (!phone && !email) {
-    alert("Пожалуйста, укажите телефон или email");
+    alert("Укажите телефон или email для связи");
     return;
   }
   
-  // Проверка телефона
+  // Валидация телефона
   if (phone) {
     const cleaned = phone.replace(/\D/g, '');
     if (cleaned.length !== 10) {
@@ -349,24 +349,26 @@ document.getElementById("finalSubmitBtn").addEventListener("click", () => {
     phoneError.style.display = "none";
   }
   
-  // Проверка email
-  if (email) {
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailPattern.test(email)) {
-      alert("Пожалуйста, введите корректный Email.");
-      return;
-    }
+  // Валидация email
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    alert("Введите корректный email");
+    return;
   }
 
-  // Отправка контактных данных
-  try {
-    const contactInfo = `📞 Новая заявка:\nИмя: ${name}\nТелефон: ${phone || "не указан"}\nEmail: ${email || "не указан"}`;
-    window.Telegram.WebApp.sendData(contactInfo);
-  } catch (e) {
-    console.error("Ошибка при отправке контактных данных:", e);
-  }
-
-  // Переход к калькулятору
+  // Отправка данных в Telegram
+  const tg = window.Telegram.WebApp;
+  const contactData = {
+    name: name,
+    phone: phone || "не указан",
+    email: email || "не указан",
+    // Добавляем метку для фильтрации таких сообщений
+    _isContactForm: true 
+  };
+  
+  // Отправляем без закрытия веб-приложения
+  tg.sendData(JSON.stringify(contactData));
+  
+  // Разблокируем доступ к калькулятору
   page2.classList.remove("visible");
   page1.classList.add("visible");
 });
