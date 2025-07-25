@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -320,67 +321,45 @@ function submitForm() {
   bandwidth.addEventListener("input", updatePrice);
   
   // Измененная логика переключения страниц
-    document.getElementById("finalSubmitBtn").addEventListener("click", () => {
-    const name = document.getElementById("name").value.trim();
-    const phone = document.getElementById("phone").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const phoneError = document.getElementById("phoneError");
-    
-    // Проверка имени
-    const namePattern = /^[A-Za-zА-Яа-яЁё\s]+$/;
-    if (!name || !namePattern.test(name)) {
-      alert("Пожалуйста, введите корректное имя (только буквы)");
+document.getElementById("finalSubmitBtn").addEventListener("click", () => {
+  const name = document.getElementById("name").value.trim();
+  const phone = document.getElementById("phone").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const phoneError = document.getElementById("phoneError");
+  
+  // Проверка имени
+  const namePattern = /^[A-Za-zА-Яа-яЁё\s]+$/;
+  if (!name || !namePattern.test(name)) {
+    alert("Пожалуйста, введите корректное имя (только буквы)");
+    return;
+  }
+
+  // Проверка: телефон или email обязательны
+  if (!phone && !email) {
+    alert("Укажите телефон или email для связи");
+    return;
+  }
+  
+  // Валидация телефона
+  if (phone) {
+    const cleaned = phone.replace(/\D/g, '');
+    if (cleaned.length !== 10) {
+      phoneError.style.display = "block";
       return;
     }
+    phoneError.style.display = "none";
+  }
+  
+  // Валидация email
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    alert("Введите корректный email");
+    return;
+  }
 
-    // Проверка: телефон или email обязательны
-    if (!phone && !email) {
-      alert("Укажите телефон или email для связи");
-      return;
-    }
-    
-    // Валидация телефона
-    if (phone) {
-      const cleaned = phone.replace(/\D/g, '');
-      if (cleaned.length !== 10) {
-        phoneError.style.display = "block";
-        return;
-      }
-      phoneError.style.display = "none";
-    }
-    
-    // Валидация email
-    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      alert("Введите корректный email");
-      return;
-    }
-
-    // Отправляем уведомление администратору через fetch или другой метод
-    sendAdminNotification(name, phone, email);
-
-    // Переходим к калькулятору
-    page2.classList.remove("visible");
-    page1.classList.add("visible");
-  });
-
-  // Функция для отправки уведомления администратору
-  function sendAdminNotification(name, phone, email) {
-    const botToken = '7697790336:AAGjA1SO9TXNc-aO-6EgThUK0UctkAIi0kw'; // Замените на реальный токен бота
-    const chatId = '956919471'; // Замените на chat_id администратора
-    
-    const message = `Новый запрос перед расчетом:\n\nИмя: ${name}\nТелефон: ${phone || "не указан"}\nEmail: ${email || "не указан"}`;
-    
-    // Вариант 1: Отправка через Telegram Bot API
-    fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text: message
-      })
-    }).catch(error => console.error('Ошибка отправки:', error));
+  // Просто переходим к калькулятору без отправки данных
+  page2.classList.remove("visible");
+  page1.classList.add("visible");
+});
   
   submitBtn.addEventListener("click", submitForm);
   
