@@ -365,10 +365,10 @@ function submitForm() {
 
   // Функция для отправки уведомления администратору
   function sendAdminNotification(name, phone, email) {
-    const botToken = 'YOUR_BOT_TOKEN'; // Замените на реальный токен бота
-    const chatId = 'ADMIN_CHAT_ID'; // Замените на chat_id администратора
+    const botToken = '7697790336:AAGjA1SO9TXNc-aO-6EgThUK0UctkAIi0kw'; // Замените на реальный токен бота
+    const chatId = '956919471'; // Замените на chat_id администратора
     
-    const message = `Новый запрос на расчет:\n\nИмя: ${name}\nТелефон: ${phone || "не указан"}\nEmail: ${email || "не указан"}`;
+    const message = `Новый запрос перед расчетом:\n\nИмя: ${name}\nТелефон: ${phone || "не указан"}\nEmail: ${email || "не указан"}`;
     
     // Вариант 1: Отправка через Telegram Bot API
     fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
