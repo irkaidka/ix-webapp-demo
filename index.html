@@ -320,7 +320,7 @@ function submitForm() {
   bandwidth.addEventListener("input", updatePrice);
   
   // Измененная логика переключения страниц
-  document.getElementById("finalSubmitBtn").addEventListener("click", () => {
+    document.getElementById("finalSubmitBtn").addEventListener("click", () => {
     const name = document.getElementById("name").value.trim();
     const phone = document.getElementById("phone").value.trim();
     const email = document.getElementById("email").value.trim();
@@ -355,15 +355,32 @@ function submitForm() {
       return;
     }
 
-    // Отправляем уведомление администратору
-    const tg = window.Telegram.WebApp;
-    const adminNotification = `Новый запрос на расчет:\n\nИмя: ${name}\nТелефон: ${phone || "не указан"}\nEmail: ${email || "не указан"}`;
-    tg.sendData(adminNotification); // Отправляем данные в бота
+    // Отправляем уведомление администратору через fetch или другой метод
+    sendAdminNotification(name, phone, email);
 
     // Переходим к калькулятору
     page2.classList.remove("visible");
     page1.classList.add("visible");
   });
+
+  // Функция для отправки уведомления администратору
+  function sendAdminNotification(name, phone, email) {
+    const botToken = 'YOUR_BOT_TOKEN'; // Замените на реальный токен бота
+    const chatId = 'ADMIN_CHAT_ID'; // Замените на chat_id администратора
+    
+    const message = `Новый запрос на расчет:\n\nИмя: ${name}\nТелефон: ${phone || "не указан"}\nEmail: ${email || "не указан"}`;
+    
+    // Вариант 1: Отправка через Telegram Bot API
+    fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text: message
+      })
+    }).catch(error => console.error('Ошибка отправки:', error));
   
   submitBtn.addEventListener("click", submitForm);
   
