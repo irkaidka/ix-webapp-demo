@@ -79,6 +79,13 @@
       font-weight: bold;
       color: #0d1c4b;
     }
+	#cityWarning { 
+	  color: gray; 
+      font-size: 12px; 
+      margin-top: 8px; 
+      display: none; /* Скрываем по умолчанию */
+    }
+
     .page {
       display: none;
     }
@@ -90,6 +97,12 @@
       font-size: 14px;
       margin-top: 5px;
       display: none;
+    }
+	.helper-text {
+      color: gray;
+      font-size: 11px;
+      margin-top: 5px;
+	  margin-left: 10px;
     }
     .success {
       color: green;
@@ -103,7 +116,20 @@
   <img src="https://i.postimg.cc/tJLCT5tM/logo.png" alt="DATAIX GlobalNet Logo">
 </div>
 <div class="container">
-  <div id="page1" class="page visible">
+  <!-- Теперь page2 идет первой -->
+  <div id="page2" class="page visible">
+    <h1>Доступ к персональному калькулятору</h1>
+    <p>Для получения расчета стоимости, укажите ваш номер телефона или email. Это нужно, чтобы сохранить результат и прислать вам подробности.</p>
+    <input type="text" id="name" placeholder="Имя">
+    <input type="tel" id="phone" placeholder="Номер телефона">
+	<div id="phoneHelper" class="helper-text">*Номер без кода страны (10 цифр), например: 9123456789</div>
+    <div id="phoneError" class="error">Введите корректный номер из 10 цифр</div>
+    <input type="email" id="email" placeholder="Email">
+    <button id="finalSubmitBtn">Перейти к расчету стоимости</button>
+  </div>
+
+  <!-- Теперь page1 идет второй -->
+  <div id="page1" class="page">
     <h1>Расчет стоимости подключения к DATAIX</h1>
     
     <label for="city">Город:</label>
@@ -120,6 +146,8 @@
       <option value="Новосибирск">Новосибирск</option>
       <option value="Великий Новгород">Великий Новгород</option>
     </select>
+	
+	<div id="cityWarning" class="error" style="display: none;">Подключение в выбранном городе происходит по арендованным каналам связи, и его конечная стоимость может быть скорректирована.</div>
 
     <label for="dc">Дата-центр:</label>
     <select id="dc" disabled>
@@ -138,19 +166,9 @@
       <div id="bandwidthValue"></div>
     </div>
 
-    <button id="submitBtn" disabled>Отправить запрос на подключение</button>
-  </div>
-
-  <div id="page2" class="page">
-    <h1>Оставьте контактные данные</h1>
-    <p>Мы свяжемся с вами для уточнения деталей подключения</p>
-    <input type="text" id="name" placeholder="Имя">
-    <input type="tel" id="phone" placeholder="Номер телефона">
-    <div id="phoneError" class="error">Введите корректный номер из 10 цифр</div>
-    <input type="email" id="email" placeholder="Email">
-    <button id="finalSubmitBtn">Отправить</button>
-    <button id="backToCalculatorBtn" type="button">← Назад к калькулятору</button>
-    <div id="successMessage" class="success" style="display: none;">Запрос успешно отправлен. Наш специалист свяжется с вами в ближайшее время.</div>
+    <button id="submitBtn" disabled>Сохранить расчет</button>
+    <button id="backToFormBtn" type="button">← Назад к форме</button>
+	<div id="successMessage" class="success" style="display: none;">Запрос успешно отправлен. Наш специалист свяжется с вами в ближайшее время.</div>
   </div>
 </div>
 
@@ -214,33 +232,43 @@
     bandwidthValue.textContent = `Выбрано: ${gb} Гбит/с. Стоимость: ${cost.toLocaleString('ru-RU')} руб.`;
   }
 
-  function submitForm() {
-    const name = document.getElementById("name").value.trim();
-    const phone = document.getElementById("phone").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const phoneError = document.getElementById("phoneError");
-    if (!phone && !email) {
-      alert("Укажите телефон или email");
-      return;
-    }
-    if (phone) {
-      const cleaned = phone.replace(/\D/g, '');
-      if (cleaned.length !== 10) {
-        phoneError.style.display = "block";
-        return;
-      } else {
-        phoneError.style.display = "none";
-      }
-    }
-    const tg = window.Telegram.WebApp;
-    const index = parseInt(bandwidth.value);
-    const gb = allowedBandwidths[index];
-    const cost = pricingData[gb];
-    const summary = `\nЗапрос из приложения:\n\nИмя: ${name}\nТелефон: ${phone || "не указан"}\nEmail: ${email || "не указан"}\n\nВыбор пользователя:\nГород: ${citySelect.value}\nДата-центр: ${dcSelect.value}\nИнтерфейс: ${interfaceSelect.value}G\nПолоса: ${gb} Гбит/с\nСтоимость: ${cost.toLocaleString('ru-RU')} руб.`;
-    document.getElementById("successMessage").style.display = "block";
-    tg.sendData(summary);
-    setTimeout(() => tg.close(), 5000);
+function submitForm() {
+  const name = document.getElementById("name").value.trim();
+  const phone = document.getElementById("phone").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const phoneError = document.getElementById("phoneError");
+
+  if (!phone && !email) {
+    alert("Укажите телефон или email");
+    return;
   }
+
+  if (phone) {
+    const cleaned = phone.replace(/\D/g, '');
+    if (cleaned.length !== 10) {
+      phoneError.style.display = "block";
+      return;
+    } else {
+      phoneError.style.display = "none";
+    }
+  }
+
+  const tg = window.Telegram.WebApp;
+  const index = parseInt(bandwidth.value);
+  const gb = allowedBandwidths[index];
+  const cost = pricingData[gb];
+  const summary = `\nЗапрос из приложения:\n\nИмя: ${name}\nТелефон: ${phone || "не указан"}\nEmail: ${email || "не указан"}\n\nВыбор пользователя:\nГород: ${citySelect.value}\nДата-центр: ${dcSelect.value}\nИнтерфейс: ${interfaceSelect.value}G\nПолоса: ${gb} Гбит/с\nСтоимость: ${cost.toLocaleString('ru-RU')} руб.`;
+
+  // Показываем сообщение об успешной отправке на второй странице
+  document.getElementById("successMessage").style.display = "block";
+
+  // Отправка данных в Telegram
+  tg.sendData(summary);
+
+  // Закрытие веб-страницы через 5 секунд
+  setTimeout(() => tg.close(), 5000);
+}
+
 
   citySelect.addEventListener("change", () => {
     const city = citySelect.value;
@@ -248,6 +276,14 @@
     interfaceSelect.innerHTML = "<option value=''>Сначала выберите дата-центр</option>";
     dcSelect.disabled = interfaceSelect.disabled = true;
     submitBtn.disabled = true;
+	
+	const cityWarning = document.getElementById("cityWarning");
+    if (city && city !== "Москва" && city !== "Санкт-Петербург") {
+      cityWarning.style.display = "block";  // Показываем предупреждение
+    } else {
+      cityWarning.style.display = "none";   // Скрываем предупреждение
+    }
+	
     if (city && cityToDCs[city]) {
       cityToDCs[city].forEach(dc => {
         const option = document.createElement("option");
@@ -282,15 +318,63 @@
   });
 
   bandwidth.addEventListener("input", updatePrice);
-  submitBtn.addEventListener("click", () => {
-    page1.classList.remove("visible");
-    page2.classList.add("visible");
-  });
-  document.getElementById("finalSubmitBtn").addEventListener("click", submitForm);
-  document.getElementById("backToCalculatorBtn").addEventListener("click", () => {
-    page2.classList.remove("visible");
-    page1.classList.add("visible");
-  });
+  
+  // Измененная логика переключения страниц
+document.getElementById("finalSubmitBtn").addEventListener("click", () => {
+  const name = document.getElementById("name").value.trim();
+  const phone = document.getElementById("phone").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const phoneError = document.getElementById("phoneError");
+  
+  // Проверка имени
+  const namePattern = /^[A-Za-zА-Яа-яЁё\s]+$/;
+  if (!name || !namePattern.test(name)) {
+    alert("Пожалуйста, введите корректное имя (только буквы)");
+    return;
+  }
+
+  // Проверка: телефон или email обязательны
+  if (!phone && !email) {
+    alert("Укажите телефон или email для связи");
+    return;
+  }
+  
+  // Валидация телефона
+  if (phone) {
+    const cleaned = phone.replace(/\D/g, '');
+    if (cleaned.length !== 10) {
+      phoneError.style.display = "block";
+      return;
+    }
+    phoneError.style.display = "none";
+  }
+  
+  // Валидация email
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    alert("Введите корректный email");
+    return;
+  }
+
+  // Отправка данных в Telegram
+  const tg = window.Telegram.WebApp;
+  const contactData = {
+    name: name,
+    phone: phone || "не указан",
+    email: email || "не указан",
+    // Добавляем метку для фильтрации таких сообщений
+    _isContactForm: true 
+  };
+  
+  // Отправляем без закрытия веб-приложения
+  tg.sendData(JSON.stringify(contactData));
+  
+  // Разблокируем доступ к калькулятору
+  page2.classList.remove("visible");
+  page1.classList.add("visible");
+});
+  
+  submitBtn.addEventListener("click", submitForm);
+  
   Telegram.WebApp.ready();
 </script>
 </body>
