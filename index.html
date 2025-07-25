@@ -320,45 +320,50 @@ function submitForm() {
   bandwidth.addEventListener("input", updatePrice);
   
   // Измененная логика переключения страниц
-document.getElementById("finalSubmitBtn").addEventListener("click", () => {
-  const name = document.getElementById("name").value.trim();
-  const phone = document.getElementById("phone").value.trim();
-  const email = document.getElementById("email").value.trim();
-  const phoneError = document.getElementById("phoneError");
-  
-  // Проверка имени
-  const namePattern = /^[A-Za-zА-Яа-яЁё\s]+$/;
-  if (!name || !namePattern.test(name)) {
-    alert("Пожалуйста, введите корректное имя (только буквы)");
-    return;
-  }
-
-  // Проверка: телефон или email обязательны
-  if (!phone && !email) {
-    alert("Укажите телефон или email для связи");
-    return;
-  }
-  
-  // Валидация телефона
-  if (phone) {
-    const cleaned = phone.replace(/\D/g, '');
-    if (cleaned.length !== 10) {
-      phoneError.style.display = "block";
+  document.getElementById("finalSubmitBtn").addEventListener("click", () => {
+    const name = document.getElementById("name").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const phoneError = document.getElementById("phoneError");
+    
+    // Проверка имени
+    const namePattern = /^[A-Za-zА-Яа-яЁё\s]+$/;
+    if (!name || !namePattern.test(name)) {
+      alert("Пожалуйста, введите корректное имя (только буквы)");
       return;
     }
-    phoneError.style.display = "none";
-  }
-  
-  // Валидация email
-  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    alert("Введите корректный email");
-    return;
-  }
 
-  // Просто переходим к калькулятору без отправки данных
-  page2.classList.remove("visible");
-  page1.classList.add("visible");
-});
+    // Проверка: телефон или email обязательны
+    if (!phone && !email) {
+      alert("Укажите телефон или email для связи");
+      return;
+    }
+    
+    // Валидация телефона
+    if (phone) {
+      const cleaned = phone.replace(/\D/g, '');
+      if (cleaned.length !== 10) {
+        phoneError.style.display = "block";
+        return;
+      }
+      phoneError.style.display = "none";
+    }
+    
+    // Валидация email
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      alert("Введите корректный email");
+      return;
+    }
+
+    // Отправляем уведомление администратору
+    const tg = window.Telegram.WebApp;
+    const adminNotification = `Новый запрос на расчет:\n\nИмя: ${name}\nТелефон: ${phone || "не указан"}\nEmail: ${email || "не указан"}`;
+    tg.sendData(adminNotification); // Отправляем данные в бота
+
+    // Переходим к калькулятору
+    page2.classList.remove("visible");
+    page1.classList.add("visible");
+  });
   
   submitBtn.addEventListener("click", submitForm);
   
