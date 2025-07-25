@@ -355,20 +355,7 @@ document.getElementById("finalSubmitBtn").addEventListener("click", () => {
     return;
   }
 
-  // Отправка данных в Telegram
-  const tg = window.Telegram.WebApp;
-  const contactData = {
-    name: name,
-    phone: phone || "не указан",
-    email: email || "не указан",
-    // Добавляем метку для фильтрации таких сообщений
-    _isContactForm: true 
-  };
-  
-  // Отправляем без закрытия веб-приложения
-  tg.sendData(JSON.stringify(contactData));
-  
-  // Разблокируем доступ к калькулятору
+  // Просто переходим к калькулятору без отправки данных
   page2.classList.remove("visible");
   page1.classList.add("visible");
 });
