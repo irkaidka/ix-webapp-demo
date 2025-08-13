@@ -156,7 +156,6 @@
     </div>
 
     <button id="submitBtn" disabled>Сохранить расчет</button>
-    <button id="backToFormBtn" type="button">← Назад к форме</button>
 	<div id="successMessage" class="success" style="display: none;">Запрос успешно отправлен. Наш специалист свяжется с вами в ближайшее время.</div>
   </div>
 </div>
@@ -232,7 +231,7 @@ function submitForm() {
   document.getElementById("successMessage").style.display = "block";
 
   // Отправка данных в Telegram
-  tg.sendData(summary);
+  tg.sendData("[WEBAPP] " + summary);
 
   // Закрытие веб-страницы через 5 секунд
   setTimeout(() => tg.close(), 5000);
